@@ -1,0 +1,203 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>حضور الصيدلية</title>
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0f766e"><link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAACb0lEQVR4nO3cMU7DQBBA0Q2iDyeFLpyBkptyBApaUuAPyRi/11tajb+2sud0vjwv2Orh3gdg3wREIiASAZEIiERAJAIiERCJgEgERCIgEgGRCIhEQCQCIhEQiYBIBEQiIBIBkQiIREAkAiIREImASAREIiASAZEIiERAJAIiERCJgEgERCIgEgGRCIhEQCQCIhEQiYBIBEQiIBIBkQiIREAkj/c+wBQfb+8/feTp9eUvTrIvbqC1NtWz+al/RkCpAw0dPaBewMEbOnpARAIiERCJgEgERCIgEgGRCIhEQCQCIhEQiYBIBEQiIBIBkQiIREAkAiIREImASAREIiASAZEIiERAJAIiERCJgEgERCIgEgGRCIhEQCQCIjmdL8/3PsM3Dr437pqBe2En3kDquWbgZMYFNHBGo0ybz6yApk1nplFTmhUQuyMgEgGRCIhEQCQCIhEQiYBIBEQiIBIBkQiIREAkAiIREImASGYFNPCb34FGTWlWQGvYdAaaNp9xAa15M5pj4GSG/tZzM7/yffHA93ozE28gdkRAJAIiERCJgEgERCIgEgGRCIhEQCQCIhEQiYBIBEQiIBIBkQiIREAkAiIREImASAREIiASAZEIiERAJAIiERCJgEgERCIgEgGRCIhEQCRHD6hvpzvyfrsloNUKOHg9S0BftnWgnmVLK5EbiERAJAIiERCJgEgERCIgEgGRCIhEQCQCIhEQiYBIBEQiIBIBkQiIREAkAiIREImASAREIiASAZEIiERAJAIiERCJgEgERCIgEgGRCIhEQCQCIhEQiYBIBEQiIBIBkQiIREAkAiIREImASD4BAGUyS56sDscAAAAASUVORK5CYII="><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="حضور الصيدلية">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#f1f5f4;color:#16302b}
+header{background:#0f766e;color:#fff;padding:12px 16px;font-size:18px}
+nav{display:flex;background:#fff;border-bottom:1px solid #d5e2df;position:sticky;top:0;overflow-x:auto}
+nav button{flex:1;padding:12px 8px;border:0;background:none;font-size:15px;cursor:pointer;white-space:nowrap}
+nav button.on{border-bottom:3px solid #0f766e;color:#0f766e;font-weight:bold}
+main{max-width:720px;margin:auto;padding:14px}
+.card{background:#fff;border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px #0001;overflow-x:auto}
+input,select{width:100%;padding:11px;border:1px solid #bcd0cc;border-radius:8px;font-size:16px;margin:4px 0 10px;background:#fff}
+button.b{padding:12px 16px;border:0;border-radius:8px;font-size:16px;color:#fff;background:#0f766e;cursor:pointer;width:100%}
+button.b:disabled{opacity:.5}
+button.out{background:#c2410c}button.g{background:#64748b;color:#fff;border:0;border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer}button.r{background:#b91c1c;color:#fff;border:0;border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:7px 4px;border-bottom:1px solid #e3ecea;text-align:right}
+.clock{font-size:34px;text-align:center;font-weight:bold}.msg{padding:10px;border-radius:8px;margin:8px 0;text-align:center}
+.ok{background:#d1fae5}.err{background:#fee2e2}.live{background:#dcfce7}.warn{color:#b91c1c}.sub{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.sub button{flex:1;min-width:70px}.sub button.on{background:#0f766e}
+.pill{font-size:12px;padding:2px 8px;border-radius:10px;background:#e2e8f0}.pill.p{background:#fef3c7}.pill.a{background:#d1fae5}.pill.x{background:#fee2e2}
+.alert{background:#fff7ed;border:1px solid #fdba74}
+#prt{display:none}
+@media print{header,nav,main{display:none!important}#prt{display:block!important;padding:10px}#prt table{font-size:12px}body{background:#fff}}
+</style></head><body>
+<header>🏥 حضور وانصراف الصيدلية</header>
+<nav id="nav"></nav><main id="app"></main><div id="prt"></div>
+<script>
+const API='https://cwhzlsjramdogswzfmgx.supabase.co/rest/v1/rpc/',KEY='sb_publishable_Z7ieaylDZZP2IvqItDnHZw_EVOEHRbW';
+async function rpc(fn,args){
+  try{const r=await fetch(API+fn,{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify(args||{})});
+    if(!r.ok)return{ok:false,code:'net'};return await r.json();}catch(e){return{ok:false,code:'net'};}
+}
+const MIN=60000;
+function hm(s){const[a,b]=s.split(':').map(Number);return a*60+b;}
+function dayStart(ms){const d=new Date(ms);d.setHours(0,0,0,0);return d.getTime();}
+function shiftFor(emp,ts){
+  if(!emp||!emp.start||!emp.end)return null;
+  const s=hm(emp.start),e=hm(emp.end);const dur=((e-s)+1440)%1440||1440;let best=null;
+  for(const off of[-1,0,1]){const d=new Date(dayStart(ts));d.setDate(d.getDate()+off);
+    const st=d.getTime()+s*MIN;const en=st+dur*MIN;const dist=Math.min(Math.abs(ts-st),Math.abs(ts-en));
+    if(!best||dist<best.dist)best={st,en,dist};}
+  return best;}
+function workedMin(r,now){const end=r.out??now;return Math.max(0,Math.round((end-r.in)/MIN));}
+function lateMin(r,emp,g=0){const sh=shiftFor(emp,r.in);if(!sh)return 0;if(Math.abs(r.in-sh.st)>6*60*MIN)return 0;const m=Math.round((r.in-sh.st)/MIN);return m>g?m:0;}
+function earlyMin(r,emp){if(!r.out)return 0;const sh=shiftFor(emp,r.in);if(!sh)return 0;const m=Math.round((sh.en-r.out)/MIN);return m>0&&m<12*60?m:0;}
+function overtimeMin(r,emp){if(!r.out)return 0;const sh=shiftFor(emp,r.in);if(!sh)return 0;const m=Math.round((r.out-sh.en)/MIN);return m>0?m:0;}
+function fmt(m){return Math.floor(m/60)+':'+String(m%60).padStart(2,'0');}
+function summary(recs,emps,from,to,now,g){
+  return emps.map(emp=>{const rs=recs.filter(r=>r.empId===emp.id&&r.in>=from&&r.in<to);let w=0,l=0,e=0,o=0;const days=new Set();
+    rs.forEach(r=>{w+=workedMin(r,now);l+=lateMin(r,emp,g);e+=earlyMin(r,emp);o+=overtimeMin(r,emp);days.add(dayStart(r.in));});
+    return{emp,days:days.size,worked:w,late:l,early:e,overtime:o,pay:emp.rate?Math.round(w/60*emp.rate*100)/100:0};});}
+const $=s=>document.querySelector(s);
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const p2=n=>String(n).padStart(2,'0');
+const tm=t=>t==null?'—':p2(new Date(t).getHours())+':'+p2(new Date(t).getMinutes());
+const dt=t=>{const d=new Date(t);return d.getFullYear()+'/'+p2(d.getMonth()+1)+'/'+p2(d.getDate())};
+const loc=t=>{const d=new Date(t);return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())+'T'+p2(d.getHours())+':'+p2(d.getMinutes())};
+let reqOpen=false,myReqs=null,tab='punch',msg=null,staff=[],AP=null,D=null,sub='today',needSetup=false,busy=false,pinInput='',selEmp='';
+let month=new Date().getFullYear()+'-'+p2(new Date().getMonth()+1);
+const TABS=[['punch','تسجيل'],['admin','الإدارة']];
+function nav(){$('#nav').innerHTML=TABS.map(([k,v])=>`<button class="${tab===k?'on':''}" onclick="go('${k}')">${v}</button>`).join('');}
+function go(t){tab=t;msg=null;render();}
+function flash(t,ok=true){msg={t,ok};}
+function mh(){return msg?`<div class="msg ${msg.ok?'ok':'err'}">${esc(msg.t)}</div>`:'';}
+const ERR={bad_pin:'الرقم السري غلط',locked:'محاولات كتير غلط. استنى 10 دقايق وجرب تاني',already_in:'إنت مسجل حضور بالفعل',not_in:'إنت مش مسجل حضور',no_loc:'مش قادر أحدد موقعك',net:'مفيش اتصال بالإنترنت أو السيرفر مش بيرد. جرب تاني',invalid:'بيانات غير صحيحة',no_emp:'الموظف مش موجود',short:'الرقم السري لازم 4 أرقام على الأقل',already:'الإدارة متفعلة بالفعل',too_many:'عندك طلبات كتير معلقة'};
+function getPos(){return new Promise((res,rej)=>{if(!navigator.geolocation)return rej({code:0});
+  navigator.geolocation.getCurrentPosition(p=>res(p.coords),e=>rej(e),{enableHighAccuracy:true,timeout:20000,maximumAge:0});});}
+async function loadStaff(){const r=await rpc('staff_list');staff=Array.isArray(r)?r:[];}
+async function punch(kind){
+  if(busy)return;const id=$('#pe').value,pin=$('#pp').value;selEmp=id;
+  if(!id){flash('اختار اسمك',false);return render();}
+  if(!pin){flash('اكتب الرقم السري',false);return render();}
+  busy=true;flash('بحدد موقعك...',true);render();
+  let c;try{c=await getPos();}catch(e){busy=false;flash(e&&e.code===1?'لازم تسمح للموقع (Location) في المتصفح وتفتح GPS':'مش قادر أجيب الموقع. افتح GPS وجرب تاني',false);return render();}
+  const r=await rpc('punch',{p_emp:id,p_pin:pin,p_kind:kind,p_lat:c.latitude,p_lon:c.longitude,p_acc:c.accuracy});
+  busy=false;
+  if(r.ok){const t=tm(r.ts);flash(r.kind==='in'?`تم تسجيل حضور ${r.name} الساعة ${t}`:`تم تسجيل انصراف ${r.name} الساعة ${t} — مدة الشغل ${fmt(Math.round((r.ts-r.in)/MIN))}`);selEmp='';await loadStaff();}
+  else if(r.code==='far')flash(`إنت بعيد عن الصيدلية (حوالي ${r.dist} متر). لازم تكون جوه الصيدلية`,false);
+  else if(r.code==='inaccurate')flash(`إشارة GPS ضعيفة (دقة ${r.acc} متر). قرب من الشباك أو استنى ثواني وجرب تاني`,false);
+  else flash(ERR[r.code]||'حصل خطأ',false);
+  render();}
+const KIND={leave:'إجازة',excuse:'غياب بعذر',swap:'تبديل وردية'},STAT={pending:['p','قيد المراجعة'],approved:['a','تمت الموافقة'],rejected:['x','مرفوض']};
+function vReq(){const today=new Date().toISOString().slice(0,10);
+  return `<div class="card"><b>طلب جديد</b><p style="font-size:13px;color:#566">اختار اسمك واكتب رقمك السري فوق، وبعدين املا الطلب.</p>
+  <label>النوع</label><select id="rk" onchange="document.getElementById('rw').style.display=this.value==='swap'?'block':'none'"><option value="leave">إجازة</option><option value="excuse">غياب بعذر</option><option value="swap">تبديل وردية</option></select>
+  <label>من تاريخ</label><input id="rf" type="date" value="${today}"><label>إلى تاريخ</label><input id="rt" type="date" value="${today}">
+  <div id="rw" style="display:none"><label>التبديل مع</label><select id="rwm"><option value="">— اختار —</option>${staff.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('')}</select></div>
+  <label>ملاحظة</label><input id="rn" maxlength="300">
+  <button class="b" onclick="sendReq()">إرسال الطلب</button><div style="height:8px"></div><button class="g" onclick="loadMine()">طلباتي السابقة</button>
+  ${myReqs?`<table style="margin-top:10px">${myReqs.map(r=>`<tr><td>${KIND[r.kind]}${r.with?' مع '+esc(r.with):''}</td><td>${r.from}${r.to!==r.from?' → '+r.to:''}</td><td><span class="pill ${STAT[r.status][0]}">${STAT[r.status][1]}</span></td></tr>`).join('')||'<tr><td>لا توجد طلبات</td></tr>'}</table>`:''}</div>`;}
+async function sendReq(){const id=$('#pe').value,pin=$('#pp').value;selEmp=id;
+  if(!id||!pin){flash('اختار اسمك واكتب رقمك السري فوق',false);return render();}
+  const k=$('#rk').value,f=$('#rf').value,t=$('#rt').value,w=$('#rwm').value;
+  if(!f||!t||t<f||(k==='swap'&&!w)){flash('راجع التواريخ والبيانات',false);return render();}
+  const r=await rpc('req_submit',{p_emp:id,p_pin:pin,p_kind:k,p_from:f,p_to:t,p_with:k==='swap'?w:null,p_note:$('#rn').value});
+  if(r.ok){flash('تم إرسال الطلب للمدير');reqOpen=false;}else flash(ERR[r.code]||'حصل خطأ',false);render();}
+async function loadMine(){const id=$('#pe').value,pin=$('#pp').value;selEmp=id;if(!id||!pin){flash('اختار اسمك واكتب رقمك السري فوق',false);return render();}
+  const r=await rpc('req_mine',{p_emp:id,p_pin:pin});if(r.ok){myReqs=r.reqs;msg=null;}else flash(ERR[r.code]||'حصل خطأ',false);render();}
+function vPunch(){
+  if(!staff.length)return `<div class="card">${mh()}مفيش موظفين لسه. المدير يضيفهم من تبويب "الإدارة".</div>`;
+  const present=staff.filter(e=>e.present);
+  return `<div class="card"><div class="clock" id="clk"></div>${mh()}
+  <label>الموظف</label><select id="pe"><option value="">— اختار —</option>${staff.map(e=>`<option value="${e.id}" ${e.id===selEmp?'selected':''}>${esc(e.name)}${e.present?' (حاضر)':''}</option>`).join('')}</select>
+  <label>الرقم السري</label><input id="pp" type="password" inputmode="numeric" autocomplete="off">
+  <button class="b" ${busy?'disabled':''} onclick="punch('in')">✅ تسجيل حضور</button><div style="height:8px"></div>
+  <button class="b out" ${busy?'disabled':''} onclick="punch('out')">🚪 تسجيل انصراف</button>
+  <p style="font-size:13px;color:#566">التسجيل بيشتغل بس وإنت جوه الصيدلية، ولازم تسمح للموقع.</p>
+  <button class="g" onclick="reqOpen=!reqOpen;myReqs=null;render()">📝 طلب إجازة / عذر غياب / تبديل وردية</button></div>${reqOpen?vReq():''}
+  <div class="card"><b>الحاضرين دلوقتي</b><div>${present.map(e=>esc(e.name)).join('، ')||'—'}</div></div>`;}
+async function adminLoad(){
+  const now=Date.now(),[y,m]=month.split('-').map(Number);const f=Math.min(new Date(y,m-1,1).getTime(),dayStart(now)),t=Math.max(new Date(y,m,1).getTime(),now+86400000);
+  const r=await rpc('admin_data',{p_pin:AP,p_from:f,p_to:t});
+  if(r.ok)D=r;else{AP=null;D=null;flash(ERR[r.code]||'حصل خطأ',false);}}
+async function loginAdmin(){const p=$('#ap').value;if(!p)return;AP=p;await adminLoad();if(D)msg=null;render();}
+async function setupAdmin(){const p=$('#ap').value;const r=await rpc('admin_setup',{p_new:p});
+  if(r.ok){AP=p;needSetup=false;await adminLoad();flash('تم تفعيل الإدارة. احفظ الرقم السري');}else flash(ERR[r.code]||'حصل خطأ',false);render();}
+async function act(fn,args,okMsg){const r=await rpc(fn,Object.assign({p_pin:AP},args));
+  if(r.ok){flash(okMsg||'تم');await Promise.all([adminLoad(),loadStaff()]);}else flash(ERR[r.code]||'حصل خطأ',false);render();}
+const g=()=>D.settings.grace_min||0;
+function range(){const[y,m]=month.split('-').map(Number);return[new Date(y,m-1,1).getTime(),new Date(y,m,1).getTime()];}
+const E=id=>D.emps.find(e=>e.id===id);
+function subnav(){const pc=D.reqs.filter(r=>r.status==='pending').length;const T=[['today','اليوم'],['reqs','الطلبات'+(pc?' ('+pc+')':'')],['report','التقرير'],['emps','الموظفين'],['recs','السجلات'],['set','الإعدادات']];
+  return `<div class="sub">${T.map(([k,v])=>`<button class="g ${sub===k?'on':''}" onclick="sub='${k}';msg=null;render()">${v}</button>`).join('')}</div>`;}
+const dkey=ms=>{const d=new Date(ms);return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())};
+function onLeave(empId,key){return D.reqs.some(r=>r.empId===empId&&r.status==='approved'&&r.kind!=='swap'&&r.from<=key&&key<=r.to);}
+function leaveDays(empId,f,t){let n=0;D.reqs.filter(r=>r.empId===empId&&r.status==='approved'&&r.kind!=='swap').forEach(r=>{let d=new Date(r.from+'T12:00:00');const e=new Date(r.to+'T12:00:00');while(d<=e){const x=d.getTime();if(x>=f&&x<t)n++;d.setDate(d.getDate()+1);}});return n;}
+function alerts(){const now=Date.now(),out=[],key=dkey(now);
+  D.emps.forEach(e=>{if(!e.start)return;const s=hm(e.start),en=hm(e.end),dur=((en-s)+1440)%1440||1440;
+    const st=dayStart(now)+s*MIN,end=st+dur*MIN;
+    const open=D.recs.find(r=>r.empId===e.id&&r.out==null);
+    if(open&&now>end+30*MIN&&open.in<end+30*MIN)out.push(`${e.name}: لسه ماسجلش انصراف (الوردية خلصت ${tm(end)})`);
+    const had=D.recs.some(r=>r.empId===e.id&&r.in>=st-4*60*MIN&&r.in<end);
+    if(!had&&now>st+(g()+15)*MIN&&!onLeave(e.id,key))out.push(`${e.name}: ${now>end?'غايب اليوم':'ماسجلش حضور'} (الوردية ${tm(st)}–${tm(end)})`);});
+  return out;}
+function aReqs(){const rs=D.reqs;
+  return `<div class="card"><b>طلبات الموظفين</b><table>${rs.map(r=>{const e=E(r.empId);return `<tr><td>${esc(e?e.name:'؟')}<br><span class="pill">${KIND[r.kind]}${r.with?' مع '+esc(r.with):''}</span></td><td>${r.from}${r.to!==r.from?' → '+r.to:''}<br><small>${esc(r.note||'')}</small></td><td><span class="pill ${STAT[r.status][0]}">${STAT[r.status][1]}</span><br>${r.status==='pending'?`<button class="g" onclick="decide('${r.id}','approved')">موافقة</button> <button class="r" onclick="decide('${r.id}','rejected')">رفض</button>`:`<button class="g" onclick="decide('${r.id}','pending')">تراجع</button>`}</td></tr>`}).join('')||'<tr><td>لا توجد طلبات</td></tr>'}</table></div>`;}
+function decide(id,s){act('admin_req_decide',{p_id:id,p_status:s},'تم');}
+function aToday(){const now=Date.now(),d0=dayStart(now);const rs=D.recs.filter(r=>r.out==null||r.in>=d0).sort((a,b)=>a.in-b.in);
+  const al=alerts();
+  return `${al.length?`<div class="card alert"><b>⚠️ تنبيهات</b><ul>${al.map(a=>`<li>${esc(a)}</li>`).join('')}</ul></div>`:''}<div class="card"><b>سجل اليوم والحاضرين حاليًا</b><table><tr><th>الموظف</th><th>حضور</th><th>انصراف</th><th>المدة</th><th>تأخير</th></tr>
+  ${rs.map(r=>{const e=E(r.empId);return `<tr class="${r.out==null?'live':''}"><td>${esc(e?e.name:'؟')}</td><td>${tm(r.in)}</td><td>${tm(r.out)}</td><td>${fmt(workedMin(r,now))}</td><td class="warn">${lateMin(r,e,g())||''}</td></tr>`}).join('')||'<tr><td colspan=5>لا يوجد</td></tr>'}</table></div>`;}
+function aReport(){const[f,t]=range();const sm=summary(D.recs,D.emps,f,t,Date.now(),g());const pay=D.emps.some(e=>e.rate);
+  return `<div class="card"><label>الشهر</label><input type="month" value="${month}" onchange="month=this.value;adminLoad().then(render)">
+  <table><tr><th>الموظف</th><th>أيام</th><th>الساعات</th><th>تأخير د</th><th>مبكر د</th><th>إضافي د</th><th>إجازات</th>${pay?'<th>المستحق</th>':''}</tr>
+  ${sm.map(s=>`<tr><td>${esc(s.emp.name)}</td><td>${s.days}</td><td><b>${fmt(s.worked)}</b></td><td>${s.late}</td><td>${s.early}</td><td>${s.overtime}</td><td>${leaveDays(s.emp.id,f,t)||''}</td>${pay?`<td>${s.pay}</td>`:''}</tr>`).join('')}</table>
+  <p><button class="b" onclick="csv()">⬇️ تصدير CSV (إكسل)</button></p><p><button class="b" onclick="printRep()">🖨️ طباعة / حفظ PDF</button></p></div>
+  <div class="card"><b>تفاصيل الشهر</b><table><tr><th>الموظف</th><th>التاريخ</th><th>حضور</th><th>انصراف</th><th>المدة</th></tr>
+  ${D.recs.filter(r=>r.in>=f&&r.in<t).map(r=>`<tr><td>${esc((E(r.empId)||{name:'؟'}).name)}</td><td>${dt(r.in)}</td><td>${tm(r.in)}</td><td>${tm(r.out)}</td><td>${fmt(workedMin(r,Date.now()))}</td></tr>`).join('')}</table></div>`;}
+function printRep(){const[f,t]=range();const now=Date.now();const sm=summary(D.recs,D.emps,f,t,now,g());const pay=D.emps.some(e=>e.rate);
+  const det=D.recs.filter(r=>r.in>=f&&r.in<t).sort((a,b)=>a.in-b.in);
+  $('#prt').innerHTML=`<h2 style="text-align:center">تقرير حضور الصيدلية - شهر ${month}</h2><table><tr><th>الموظف</th><th>أيام</th><th>الساعات</th><th>تأخير د</th><th>مبكر د</th><th>إضافي د</th><th>إجازات</th>${pay?'<th>المستحق</th>':''}</tr>
+  ${sm.map(s=>`<tr><td>${esc(s.emp.name)}</td><td>${s.days}</td><td>${fmt(s.worked)}</td><td>${s.late}</td><td>${s.early}</td><td>${s.overtime}</td><td>${leaveDays(s.emp.id,f,t)||''}</td>${pay?`<td>${s.pay}</td>`:''}</tr>`).join('')}</table>
+  <h3>التفاصيل</h3><table><tr><th>الموظف</th><th>التاريخ</th><th>حضور</th><th>انصراف</th><th>المدة</th></tr>${det.map(r=>`<tr><td>${esc((E(r.empId)||{name:'؟'}).name)}</td><td>${dt(r.in)}</td><td>${tm(r.in)}</td><td>${tm(r.out)}</td><td>${fmt(workedMin(r,now))}</td></tr>`).join('')}</table>`;
+  window.print();}
+function csv(){const[f,t]=range();const now=Date.now();
+  const rows=[['الموظف','التاريخ','الحضور','الانصراف','الساعات','تأخير(د)','انصراف مبكر(د)','إضافي(د)','يدوي']];
+  D.recs.filter(r=>r.in>=f&&r.in<t).sort((a,b)=>a.in-b.in).forEach(r=>{const e=E(r.empId);rows.push([e?e.name:'?',dt(r.in),tm(r.in),tm(r.out),fmt(workedMin(r,now)),lateMin(r,e,g()),earlyMin(r,e),overtimeMin(r,e),r.manual?'نعم':'']);});
+  const s='\ufeff'+rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([s],{type:'text/csv'}));a.download='attendance-'+month+'.csv';a.click();}
+function aEmps(){return `<div class="card"><b>إضافة موظف</b><input id="en" placeholder="الاسم"><input id="epin" placeholder="رقم سري للموظف (3 إلى 8 أرقام)" inputmode="numeric">
+  <label>بداية الشيفت</label><input id="es" type="time" value="09:00"><label>نهاية الشيفت (ممكن بعد منتصف الليل)</label><input id="ee" type="time" value="17:00">
+  <input id="er" type="number" placeholder="سعر الساعة (اختياري)"><button class="b" onclick="addEmp()">إضافة</button></div>
+  <div class="card"><b>الموظفين</b><table>${D.emps.map(e=>`<tr><td>${esc(e.name)}</td><td>${e.start}–${e.end}</td><td>${e.rate||''}</td><td><button class="g" onclick="editEmp('${e.id}')">تعديل</button> <button class="r" onclick="delEmp('${e.id}')">حذف</button></td></tr>`).join('')}</table></div>`;}
+function addEmp(){const n=$('#en').value.trim(),pin=$('#epin').value.trim();
+  if(!n||!/^\d{3,8}$/.test(pin)){flash('اكتب الاسم ورقم سري من 3 لـ 8 أرقام',false);return render();}
+  act('admin_add_emp',{p_name:n,p_emp_pin:pin,p_start:$('#es').value,p_end:$('#ee').value,p_rate:+$('#er').value||0},'تمت الإضافة');}
+function editEmp(id){const e=E(id);const n=prompt('الاسم',e.name);if(n===null)return;const s=prompt('بداية الشيفت HH:MM',e.start);if(s===null)return;const en=prompt('نهاية الشيفت HH:MM',e.end);if(en===null)return;
+  const r=prompt('سعر الساعة',e.rate||0);if(r===null)return;const p=prompt('رقم سري جديد (اتركه فاضي لو مش هتغيره)','');if(p===null)return;
+  act('admin_edit_emp',{p_id:id,p_name:n,p_emp_pin:p,p_start:s,p_end:en,p_rate:+r||0},'تم التعديل');}
+function delEmp(id){if(confirm('حذف الموظف وكل سجلاته نهائيا؟'))act('admin_del_emp',{p_id:id},'تم الحذف');}
+function aRecs(){const opts=D.emps.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('');
+  return `<div class="card"><b>إضافة سجل يدوي (لو نسي يسجل)</b><select id="me">${opts}</select><label>حضور</label><input id="mi" type="datetime-local"><label>انصراف (اختياري)</label><input id="mo" type="datetime-local"><button class="b" onclick="addManual()">إضافة</button></div>
+  <div class="card"><b>آخر السجلات</b><table>${D.recs.slice(0,40).map(r=>`<tr><td>${esc((E(r.empId)||{name:'؟'}).name)}${r.manual?' ✎':''}</td><td>${dt(r.in)} ${tm(r.in)}→${tm(r.out)}</td><td><button class="g" onclick="editRec('${r.id}')">تعديل</button> <button class="r" onclick="delRec('${r.id}')">✕</button></td></tr>`).join('')}</table></div>`;}
+function addManual(){const id=$('#me').value,i=new Date($('#mi').value).getTime(),o=$('#mo').value?new Date($('#mo').value).getTime():null;
+  if(!id||isNaN(i)||(o!==null&&o<i)){flash('بيانات غير صحيحة',false);return render();}act('admin_rec_add',{p_emp:id,p_in:i,p_out:o,p_note:'يدوي'},'تمت الإضافة');}
+function editRec(id){const r=D.recs.find(x=>x.id===id);const i=prompt('الحضور (YYYY-MM-DDTHH:MM)',loc(r.in));if(!i)return;
+  const o=prompt('الانصراف (اتركه فاضي لو لسه حاضر)',r.out?loc(r.out):'');const a=new Date(i).getTime(),b=o?new Date(o).getTime():null;
+  if(isNaN(a)||(b!==null&&(isNaN(b)||b<a)))return alert('قيمة غير صحيحة');act('admin_rec_edit',{p_id:id,p_in:a,p_out:b},'تم التعديل');}
+function delRec(id){if(confirm('حذف السجل؟'))act('admin_rec_del',{p_id:id},'تم الحذف');}
+const AL={emp_add:'إضافة موظف',emp_edit:'تعديل موظف',emp_delete:'حذف موظف',rec_add:'إضافة سجل يدوي',rec_edit:'تعديل سجل',rec_delete:'حذف سجل',settings:'تغيير الإعدادات',admin_pin_changed:'تغيير رقم الإدارة',admin_setup:'تفعيل الإدارة'};
+function aSet(){const s=D.settings;
+  return `<div class="card"><b>موقع الصيدلية</b><p style="font-size:13px">الحالي: ${(+s.lat).toFixed(6)}, ${(+s.lon).toFixed(6)}</p>
+  <button class="g" onclick="useHere()">📍 اعتمد موقعي الحالي كموقع الصيدلية (اضغطها وإنت جوه الصيدلية)</button>
+  <label>أقصى مسافة مسموحة (متر)</label><input id="sr" type="number" value="${s.radius_m}">
+  <label>أقصى خطأ مسموح في دقة GPS (متر)</label><input id="sa" type="number" value="${s.max_acc_m}">
+  <label>دقائق السماح للتأخير</label><input id="sg" type="number" value="${s.grace_min}">
+  <button class="b" onclick="saveSet()">حفظ</button></div>
+  <div class="card"><b>تغيير رقم سري الإدارة</b><input id="np" type="password" inputmode="numeric" placeholder="الرقم الجديد"><button class="b" onclick="newPin()">تغيير</button></div>
+  <div class="card"><b>سجل التعديلات</b><table>${D.audit.map(a=>`<tr><td>${dt(a.ts)} ${tm(a.ts)}</td><td>${AL[a.action]||esc(a.action)}</td></tr>`).join('')}</table></div>
+  <button class="g" onclick="AP=null;D=null;render()">تسجيل خروج من الإدارة</button>`;}
+async function useHere(){try{const c=await getPos();if(!confirm(`اعتماد الموقع الحالي (دقة ${Math.round(c.accuracy)} متر)؟`))return;act('admin_settings',{p_lat:c.latitude,p_lon:c.longitude,p_radius:null,p_acc:null,p_grace:null},'تم تحديث موقع الصيدلية');}catch(e){alert('مش قادر أجيب الموقع');}}
+function saveSet(){act('admin_settings',{p_lat:null,p_lon:null,p_radius:+$('#sr').value||null,p_acc:+$('#sa').value||null,p_grace:+$('#sg').value},'تم الحفظ');}
+async function newPin(){const n=$('#np').value;const r=await rpc('admin_set_pin',{p_pin:AP,p_new:n});if(r.ok){AP=n;flash('تم تغيير الرقم');}else flash(ERR[r.code]||'حصل خطأ',false);render();}
+function vAdmin(){
+  if(needSetup)return `<div class="card">${mh()}<b>أول مرة: اختار رقم سري للإدارة (4 أرقام على الأقل)</b><input id="ap" type="password" inputmode="numeric"><button class="b" onclick="setupAdmin()">تفعيل</button></div>`;
+  if(!AP||!D)return `<div class="card">${mh()}<label>رقم سري الإدارة</label><input id="ap" type="password" inputmode="numeric" onkeydown="if(event.key==='Enter')loginAdmin()"><button class="b" onclick="loginAdmin()">دخول</button></div>`;
+  return mh()+subnav()+({today:aToday,reqs:aReqs,report:aReport,emps:aEmps,recs:aRecs,set:aSet}[sub])();}
+function render(){nav();const a=$('#app');const keep=document.activeElement&&document.activeElement.id;a.innerHTML=(tab==='punch'?vPunch:vAdmin)();tick();}
+function tick(){const c=$('#clk');if(c)c.textContent=new Date().toLocaleTimeString('ar-EG');}
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+setInterval(tick,1000);
+(async()=>{render();const[s]=await Promise.all([rpc('admin_status'),loadStaff()]);needSetup=!!(s&&s.setup);render();})();
+</script></body></html>
